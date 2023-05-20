@@ -7,12 +7,14 @@ class mysql extends GetxController {
   var data_withdraw;
   var data_deposit;
   var data_register;
+  var all_user;
 
   var user1, user2, user3;
   var CountS1;
   var CountS2;
   var CountS3;
   var Count1, Count2, Count3;
+  List list_allUser = [];
 
   var settings;
   var conn;
@@ -37,6 +39,9 @@ class mysql extends GetxController {
   }
 
   void get_data() async {
+    all_user = await conn.query(
+        "select users.name , services.sequence from users inner join services on users.id=services.user_id order by name limit 8 ;");
+
     data_withdraw = await conn.query(
         "select* from services where status='still' and service_id=1 limit 1;");
     data_deposit = await conn.query(
@@ -50,6 +55,11 @@ class mysql extends GetxController {
         "select* from services where status='still' and service_id=2 order by sid desc limit 1;");
     CountS3 = await conn.query(
         "select* from services where status='still' and service_id=3 order by sid desc limit 1;");
+
+    for (var element in all_user) {
+      list_allUser.add(element);
+    }
+    print(list_allUser.length);
 
     for (var element in data_withdraw) {
       user1 = element;
@@ -80,9 +90,27 @@ class mysql extends GetxController {
         'update services set status=? where user_id=?', ['pass', id_user]);
   }
 
-  void add_someone() async {
+  void add_someone(String name, int age, var gander, int service) async {
+    int counts;
+    if (service == 1) {
+      counts = CountS1++;
+    } else if (service == 2) {
+      counts = CountS2++;
+    } else {
+      counts = CountS3++;
+    }
     var result = await conn.query(
-        'INSERT INTO users (name, age, gender) VALUES(?,?, ?),',
-        ['Bob', 25, 'male']);
+        'INSERT INTO users (name, age, gender) VALUES(?,?, ?)',
+        [name, age, gander]);
+    var last_id =
+        await conn.query("select id from users order by id desc limit 1;");
+    for (var element in last_id) {
+      last_id = element[0];
+    }
+    print(last_id);
+
+    result = await conn.query(
+        "INSERT INTO services (user_id, service_id, sequence, status) VALUES(?,?,?,?)",
+        [last_id, service.toString(), counts, "still"]);
   }
 }

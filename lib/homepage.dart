@@ -1,6 +1,7 @@
 import 'dart:ffi';
 
 import 'package:bank_queue_system/Theme.dart';
+import 'package:bank_queue_system/listuser.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -83,32 +84,32 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  screenCard(c.Count1),
-                  screenCard(c.Count2),
-                  screenCard(c.Count3),
+                  screenCard(c.Count1, 1),
+                  screenCard(c.Count2, 2),
+                  screenCard(c.Count3, 3),
                 ],
               ),
             ),
             SizedBox(
               height: 30,
             ),
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Center(
-                      child: ElevatedButton(
-                          onPressed: () {
-                            c.see_data();
-                          },
-                          child: Text("See data")),
-                    )
-                  ],
-                ),
-              ),
-            ),
+            // Center(
+            //   child: Padding(
+            //     padding: const EdgeInsets.all(10),
+            //     child: Row(
+            //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            //       children: [
+            //         Center(
+            //           child: ElevatedButton(
+            //               onPressed: () {
+            //                 c.see_data();
+            //               },
+            //               child: Text("See data")),
+            //         )
+            //       ],
+            //     ),
+            //   ),
+            // ),
             MaterialButton(
               onPressed: () {
                 _showDialog2(context);
@@ -119,7 +120,22 @@ class _HomePageState extends State<HomePage> {
               ),
               color: primerColor,
               height: MediaQuery.of(context).size.height * .10,
-            )
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            MaterialButton(
+              onPressed: () {
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => Alluser()));
+              },
+              child: Text(
+                "ٍSee all",
+                style: GoogleFonts.poppins(color: Colors.white),
+              ),
+              color: primerColor,
+              height: MediaQuery.of(context).size.height * .10,
+            ),
           ],
         ),
       )),
@@ -165,11 +181,15 @@ class _HomePageState extends State<HomePage> {
 
   void _showDialog2(BuildContext context) {
     TextEditingController name = TextEditingController();
-
+    TextEditingController age = TextEditingController();
+    var service;
+    var gander;
+    var s;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: primerColor.withAlpha(230),
           content: Column(mainAxisSize: MainAxisSize.min, children: [
             TextField(
               decoration: InputDecoration(
@@ -180,7 +200,7 @@ class _HomePageState extends State<HomePage> {
                   style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: const Color.fromARGB(255, 159, 159, 159)),
+                      color: Colors.white),
                 ),
                 border: OutlineInputBorder(
                   borderSide: BorderSide.none,
@@ -189,49 +209,123 @@ class _HomePageState extends State<HomePage> {
               ),
               controller: name,
             ),
-            DropdownButton<String>(
-              borderRadius: BorderRadius.circular(10),
-              focusColor: Colors.white,
-              elevation: 5,
-              style: TextStyle(color: Colors.white),
-              iconEnabledColor: Colors.black,
-              items: <String>[
-                'male',
-                'Female',
-              ].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(
-                    value,
-                    style: TextStyle(color: Colors.black),
+            Row(
+              children: [
+                DropdownButton<String>(
+                  value: gander,
+                  dropdownColor: primerColor,
+                  borderRadius: BorderRadius.circular(10),
+                  focusColor: primerColor,
+                  elevation: 5,
+                  style: TextStyle(color: Colors.white),
+                  iconEnabledColor: Color.fromARGB(255, 255, 255, 255),
+                  items: <String>[
+                    'male',
+                    'Female',
+                  ].map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(
+                        value,
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 255, 255, 255)),
+                      ),
+                    );
+                  }).toList(),
+                  hint: const Text(
+                    "Select Gander",
+                    style: TextStyle(
+                        color: Color.fromARGB(255, 255, 255, 255),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500),
                   ),
-                );
-              }).toList(),
-              hint: const Text(
-                "Select Gander",
-                style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500),
+                  onChanged: (value) {
+                    setState(() {
+                      gander = value;
+                    });
+                  },
+                ),
+                DropdownButton<String>(
+                  value: service,
+                  dropdownColor: primerColor,
+                  borderRadius: BorderRadius.circular(10),
+                  focusColor: primerColor,
+                  elevation: 5,
+                  style: TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+                  iconEnabledColor: Color.fromARGB(255, 255, 255, 255),
+                  items: <String>['withdraw', 'deposit', 'register']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(
+                        value,
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 255, 255, 255)),
+                      ),
+                    );
+                  }).toList(),
+                  hint: const Text(
+                    "Select Service",
+                    style: TextStyle(
+                        color: Color.fromARGB(255, 255, 255, 255),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      service = value;
+                    });
+                  },
+                ),
+              ],
+            ),
+            TextField(
+              decoration: InputDecoration(
+                filled: true,
+                contentPadding: const EdgeInsets.all(25),
+                label: const Text(
+                  "Age",
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              onChanged: (value) {
-                setState(() {});
-              },
+              controller: age,
             ),
           ]),
           actions: [
-            ElevatedButton(
-              child: Text('Cansel'),
+            MaterialButton(
+              color: primerColor,
+              child: Text(
+                'Cansel',
+                style: TextStyle(color: Colors.white),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
-            ElevatedButton(
+            MaterialButton(
+              color: primerColor,
               child: Text(
                 'Save',
                 style: TextStyle(color: Colors.white),
               ),
               onPressed: () {
+                if (service == 'withdraw') {
+                  s = 1;
+                } else if (service == "deposit") {
+                  s = 2;
+                } else {
+                  s = 3;
+                }
+
+                c.add_someone(name.text, int.parse(age.text), gander, s);
+                c.get_data();
                 Navigator.of(context).pop();
               },
             ),
@@ -241,7 +335,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget screenCard(var id) {
+  Widget screenCard(var id, int ch) {
+    var how;
+    if (ch == 1) {
+      how = c.user1[1];
+    } else if (ch == 2) {
+      how = c.user2[1];
+    } else if (ch == 3) {
+      how = c.user3[1];
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -265,7 +367,7 @@ class _HomePageState extends State<HomePage> {
           onPressed: () {
             setState(() {
               c.Count1 = get_c();
-              c.next_data(c.user1[1]);
+              c.next_data(how);
               c.get_data();
             });
           },

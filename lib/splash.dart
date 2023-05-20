@@ -16,7 +16,7 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   void initState() {
-    Future.delayed(Duration(seconds: 2), () {
+    Future.delayed(Duration(seconds: 4), () {
       c.get_data();
       Navigator.of(context).push(MaterialPageRoute(builder: (_) => HomePage()));
     });
@@ -27,7 +27,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.teal,
+      backgroundColor: Color.fromARGB(255, 14, 10, 32),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
