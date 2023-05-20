@@ -1,12 +1,15 @@
+import 'dart:ffi';
+
 import 'package:bank_queue_system/Theme.dart';
-import 'package:bank_queue_system/mysqlcon.dart';
+
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:mysql1/mysql1.dart';
 
-import 'mysqlcon.dart';
+import 'controlar/data.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,29 +19,28 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var data;
-  var settings;
-  var conn;
-  void con() async {
-    settings = new ConnectionSettings(
-        host: 'localhost',
-        port: 3306,
-        user: 'root',
-        password: 'aqeel1234',
-        db: 'bank_queue');
-    conn = await MySqlConnection.connect(settings);
-  }
-
+  final c = Get.put(mysql());
+  @override
   @override
   void initState() {
-    con();
+    c.Count1;
+    c.Count2;
+    c.Count3;
     super.initState();
   }
 
-  void get_data() async {
-    data = await conn.query('select * from users ');
+  @override
+  void setState(VoidCallback fn) {
+    // TODO: implement setState
+    c.get_data();
+    c.Count1;
+    c.Count2;
+    c.Count3;
+    super.setState(fn);
+  }
 
-    print(data.runtimeType);
+  dynamic get_c() {
+    return c.Count1;
   }
 
   @override
@@ -70,9 +72,9 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  screentitle("WithDrow"),
-                  screentitle("WithDrow"),
-                  screentitle("WithDrow"),
+                  screentitle("Withdraw"),
+                  screentitle("Deposit"),
+                  screentitle("Register"),
                 ],
               ),
             ),
@@ -81,18 +83,43 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  screenCard(),
-                  screenCard(),
-                  screenCard(),
+                  screenCard(c.Count1),
+                  screenCard(c.Count2),
+                  screenCard(c.Count3),
                 ],
               ),
             ),
-            ElevatedButton(
-                onPressed: () {
-                  get_data();
-                  print(data);
-                },
-                child: Text("get data"))
+            SizedBox(
+              height: 30,
+            ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Center(
+                      child: ElevatedButton(
+                          onPressed: () {
+                            c.see_data();
+                          },
+                          child: Text("See data")),
+                    )
+                  ],
+                ),
+              ),
+            ),
+            MaterialButton(
+              onPressed: () {
+                _showDialog2(context);
+              },
+              child: Text(
+                "Add User",
+                style: GoogleFonts.poppins(color: Colors.white),
+              ),
+              color: primerColor,
+              height: MediaQuery.of(context).size.height * .10,
+            )
           ],
         ),
       )),
@@ -115,6 +142,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget screentitle(String title) {
+    setState(() {
+      c.get_data();
+    });
     return Column(
       children: [
         Text("$title",
@@ -133,19 +163,122 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget screenCard() {
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.3,
-      width: MediaQuery.of(context).size.width * 0.25,
-      child: Center(
-        child: Text(
-          "22",
-          style: TextStyle(
-              color: Colors.white, fontSize: 100, fontFamily: 'Digital'),
-        ),
-      ),
-      decoration: BoxDecoration(
-          color: primerColor, borderRadius: BorderRadius.circular(10)),
+  void _showDialog2(BuildContext context) {
+    TextEditingController name = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Column(mainAxisSize: MainAxisSize.min, children: [
+            TextField(
+              decoration: InputDecoration(
+                filled: true,
+                contentPadding: const EdgeInsets.all(25),
+                label: const Text(
+                  "Name",
+                  style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: const Color.fromARGB(255, 159, 159, 159)),
+                ),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              controller: name,
+            ),
+            DropdownButton<String>(
+              borderRadius: BorderRadius.circular(10),
+              focusColor: Colors.white,
+              elevation: 5,
+              style: TextStyle(color: Colors.white),
+              iconEnabledColor: Colors.black,
+              items: <String>[
+                'male',
+                'Female',
+              ].map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(
+                    value,
+                    style: TextStyle(color: Colors.black),
+                  ),
+                );
+              }).toList(),
+              hint: const Text(
+                "Select Gander",
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500),
+              ),
+              onChanged: (value) {
+                setState(() {});
+              },
+            ),
+          ]),
+          actions: [
+            ElevatedButton(
+              child: Text('Cansel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            ElevatedButton(
+              child: Text(
+                'Save',
+                style: TextStyle(color: Colors.white),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
+  }
+
+  Widget screenCard(var id) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          height: MediaQuery.of(context).size.height * 0.3,
+          width: MediaQuery.of(context).size.width * 0.25,
+          child: Center(
+            child: Text(
+              chek(id),
+              style: TextStyle(
+                  color: Colors.white, fontSize: 100, fontFamily: 'Digital'),
+            ),
+          ),
+          decoration: BoxDecoration(
+              color: primerColor, borderRadius: BorderRadius.circular(10)),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        MaterialButton(
+          onPressed: () {
+            setState(() {
+              c.Count1 = get_c();
+              c.next_data(c.user1[1]);
+              c.get_data();
+            });
+          },
+          child: Text("Next", style: GoogleFonts.poppins(color: Colors.white)),
+          color: primerColor,
+        )
+      ],
+    );
+  }
+
+  String chek(var id) {
+    c.get_data();
+
+    return id == null ? "0" : id.toString();
   }
 }
